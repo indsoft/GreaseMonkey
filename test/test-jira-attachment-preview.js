@@ -33,7 +33,7 @@ if (window.d3) {
     .attr("x", (d, i) => i * 60).attr("y", d => 100 - d).attr("width", 50).attr("height", d => d);
 }
 document.getElementById("probe").textContent = JSON.stringify(probe);
-</script></body></html>`;
+</script><a id="jump" target="_self" href="#target">to target</a><div style="height:3000px"></div><h2 id="target">Target</h2><div style="height:3000px"></div></body></html>`;
 
 const BIG = 10 * 1024 * 1024 + 1;
 const FILES = {
@@ -351,6 +351,18 @@ const NOT_FOUND = "Příloha s tímto názvem na issue není.";
       check("html: D3 renders charts", first.rects === 3 && first.probe.d3 === "object", first);
       check("html: no access to Jira DOM / cookies, opaque origin", String(first.probe.parentDoc).startsWith("blocked") && String(first.probe.cookie).startsWith("blocked") && first.probe.origin === "null", first.probe);
       check("html: UTF-8 default decoding", first.h1 === "Dashboard č", first.h1);
+
+      // a bare #id link in srcdoc resolves against the preview tab's address; it must scroll, not navigate the frame
+      {
+        const frame = p.frames().find((f) => f !== p.mainFrame());
+        await frame.click("#jump");
+        await sleep(500);
+        const jump = await frame
+          .evaluate(() => ({ url: location.href, top: Math.round(document.getElementById("target").getBoundingClientRect().top), scrolled: scrollY > 0 }))
+          .catch((e) => ({ error: e.message }));
+        check("html: #id link scrolls inside the frame", jump.url === "about:srcdoc" && jump.scrolled && jump.top === 0, jump);
+        await frame.evaluate(() => scrollTo(0, 0)).catch(() => {});
+      }
 
       await p.reload();
       await sleep(3500);

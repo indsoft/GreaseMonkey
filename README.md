@@ -9,7 +9,7 @@ Want to try them? Use at your own risk.
 ## What's new
 
 - **2026-10-16 · uuBookKit Fulltext Search 1.9–1.11** – books are indexed automatically on your first visit and an outdated index is refreshed in the background, reloading only changed pages. Pages you open from the search rank higher next time (★ N×). The ☰ book menu spins and shows progress while indexing. [Details](changelogs.md#bookkit-fulltext-searchuserjs)
-- **2026-10-16 · IndSoft JIRA - Attachment preview 1.0–1.2** (new) – opens HTML, text, image and PDF attachments in a new tab with its own shareable address; HTML attachments work as live dashboards. Also on Unicorn and ČEPS Jira. [Details](changelogs.md#jira-attachment-previewuserjs)
+- **2026-10-16 · IndSoft JIRA - Attachment preview 1.0–1.2.1** (new) – opens HTML, text, image and PDF attachments in a new tab with its own shareable address; HTML attachments work as live dashboards. Also on Unicorn and ČEPS Jira. [Details](changelogs.md#jira-attachment-previewuserjs)
 - **2026-10-15 · WTM ← Jira sync 0.6** – import of the label mapping from the SP53 document, „Zapsat vše“ for the whole month. [Details](changelogs.md#wtm-jira-syncuserjs)
 
 Full history of every script: **[changelogs.md](changelogs.md)**

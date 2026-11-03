@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IndSoft JIRA - Attachment preview
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.2.0
+// @version      1.2.1
 // @description  Adds a "Náhled" eye button to supported attachments on IndSoft, Unicorn and ČEPS Jira issues (HTML, text, images, PDF) and opens the file by name in a reloadable new tab that picks up new uploads; HTML runs in a sandboxed frame.
 // @author       Lukáš Sedláček
 // @match        *://jira.indsoft.local/*
@@ -28,7 +28,7 @@
   "use strict";
 
   const SCRIPT_FLAG = "__gmJiraAttachmentPreview";
-  const SCRIPT_VERSION = "1.2.0";
+  const SCRIPT_VERSION = "1.2.1";
   const STYLE_ID = "gm-jira-attachment-preview-style";
   const BUTTON_CLASS = "gm-jap-btn";
   const OVERLAY_CLASS = "gm-jap-overlay";
@@ -559,6 +559,38 @@
     return doctype + parsed.documentElement.outerHTML;
   }
 
+  /**
+   * Runs inside the HTML attachment. In an <iframe srcdoc> a bare href="#id" resolves against the
+   * preview tab's address, so the frame would navigate away instead of scrolling; this script scrolls
+   * such links itself (CSS scroll-margin and scroll-behavior still apply). A page that handles the
+   * click on its own (preventDefault) is left alone.
+   */
+  const IN_FRAME_LINKS_JS = `(function () {
+  addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href^='#']") : null;
+    if (!a) return;
+    var id = a.getAttribute("href").slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : document.documentElement;
+    if (!el) return;
+    e.preventDefault();
+    el.scrollIntoView({ block: "start" });
+  });
+})();`;
+
+  /** Puts IN_FRAME_LINKS_JS after <meta charset> (it must stay in the first 1024 bytes), else <head>, else the doctype. */
+  function withInFrameLinks(html) {
+    const tag = `<script>${IN_FRAME_LINKS_JS}</` + "script>";
+    const text = String(html ?? "");
+    const at = /<meta\s[^>]*charset[^>]*>/iu.exec(text) || /<head(\s[^>]*)?>/iu.exec(text) || /^\s*<!doctype[^>]*>/iu.exec(text);
+    if (!at) {
+      return tag + text;
+    }
+    const end = at.index + at[0].length;
+    return text.slice(0, end) + tag + text.slice(end);
+  }
+
   function renderHtml(doc, text) {
     const frame = doc.createElement("iframe");
     frame.className = "gm-jap-frame";
@@ -644,7 +676,7 @@
     } else {
       const text = decodeText(bytes, mimeType);
       if (kind === "html") {
-        renderHtml(doc, await inlineExternalScripts(text));
+        renderHtml(doc, withInFrameLinks(await inlineExternalScripts(text)));
       } else {
         renderText(doc, shouldFormatJson({ filename: meta.filename, mimeType }) ? formatJsonPreview(text) : text);
       }
@@ -747,6 +779,8 @@
     latestAttachmentByName,
     issuePageUrl,
     attachmentContentPath,
+    withInFrameLinks,
+    IN_FRAME_LINKS_JS,
     PREVIEW_LIMIT_BYTES,
     SCRIPT_VERSION,
     run,

@@ -2,8 +2,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const api = require("../jira-attachment-preview.user.js");
 
-test("SCRIPT_VERSION is 1.2.0", () => {
-  assert.equal(api.SCRIPT_VERSION, "1.2.0");
+test("SCRIPT_VERSION is 1.2.1", () => {
+  assert.equal(api.SCRIPT_VERSION, "1.2.1");
 });
 
 test("classifyAttachment: known extension decides, case-insensitive, last suffix", () => {
@@ -158,4 +158,21 @@ test("issuePageUrl drops only ?viewAttachment", () => {
 
 test("attachmentContentPath encodes the file name", () => {
   assert.equal(api.attachmentContentPath("5", "a b#č.html"), "/secure/attachment/5/a%20b%23%C4%8D.html");
+});
+
+test("withInFrameLinks: helper right after <meta charset>, else <head>, else the doctype, else first", () => {
+  const tag = `<script>${api.IN_FRAME_LINKS_JS}</` + "script>";
+  assert.equal(
+    api.withInFrameLinks('<!doctype html><html><head><title>t</title><meta charset="utf-8"></head><body></body></html>'),
+    `<!doctype html><html><head><title>t</title><meta charset="utf-8">${tag}</head><body></body></html>`,
+  );
+  assert.equal(api.withInFrameLinks('<html><head lang="cs"><title>t</title></head></html>'), `<html><head lang="cs">${tag}<title>t</title></head></html>`);
+  assert.equal(api.withInFrameLinks("<!DOCTYPE html>\n<header>menu</header>"), `<!DOCTYPE html>${tag}\n<header>menu</header>`);
+  assert.equal(api.withInFrameLinks("<p>bare</p>"), `${tag}<p>bare</p>`);
+});
+
+test("IN_FRAME_LINKS_JS parses and is safe inside an inline <script>", () => {
+  assert.doesNotThrow(() => new Function(api.IN_FRAME_LINKS_JS));
+  assert.ok(!/<\/script/iu.test(api.IN_FRAME_LINKS_JS));
+  assert.ok(!api.IN_FRAME_LINKS_JS.includes("`") && !api.IN_FRAME_LINKS_JS.includes("${"));
 });

@@ -7,6 +7,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## jira-attachment-preview.user.js
 
+### 1.2.1 — 2026-11-03
+
+- Oprava: odkaz na místo ve stejném HTML (`href="#kapitola"`, např. obsah v liště dashboardu) v náhledu neodscrolloval, ale rám odnavigoval na prázdnou stránku. Rám s HTML přílohou nemá vlastní adresu a takový odkaz se vyhodnotil vůči adrese panelu náhledu. Skript do přílohy přidá malý pomocný skript, který na odkaz odscrolluje sám; odkazy, které si stránka obslouží sama, nechá být.
+
 ### 1.2.0 — 2026-10-16
 
 - Funguje i na Jiře Unicorn (`https://jira.unicorn.com`) a ČEPS (`https://jira-dc.ceps.cz`).
