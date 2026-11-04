@@ -43,6 +43,14 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## wtm-jira-sync.user.js
 
+### 0.6.5 — 2026-11-04
+
+- Oprava: v měsíci bez položek ve WTM se dny z Jiry vložily do lišty s tlačítky a překrývaly ji. Teď jsou pod hlavičkou výkazu, nad „Žádné záznamy“.
+
+### 0.6.4 — 2026-11-04
+
+- Oprava: na začátku měsíce, kdy ve WTM ještě není žádná položka, lišta zůstala na „Čekám na data WTM…“ a Jira se nenačetla. WTM v takové odpovědi nevrací měsíční výkaz, skript si proto měsíc vezme z požadavku a dny z Jiry nabídne k zápisu.
+
 ### 0.6.3 — 2026-10-27
 
 - Dovolená a další nepřítomnosti, které WTM vykazuje automaticky na roli Co-worker, už nejsou „není v Jiře“ ani se nepočítají do „navíc“. Položka i den dostanou šedou značku „dovolená“ (u jiné nepřítomnosti „nepřítomnost“). Den jen s nepřítomností nemá „✓ sedí“, protože není s čím porovnávat. Pozná se podle kódu role `<uuIdentity>_coworker-role`, takže funguje pro každého uživatele i v jiné jazykové verzi WTM.

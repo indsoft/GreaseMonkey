@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WTM ← Jira sync
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      0.6.3
+// @version      0.6.5
 // @description  Na stránce WTM „Výkazy za měsíc“ spáruje položky s worklogy v Jiře (jira.indsoft.local) a dorovná WTM podle Jiry.
 // @author       Lukáš Sedláček
 // @match        https://uuapp.plus4u.net/uu-specialistwtm-maing01/*
@@ -27,7 +27,7 @@
 })(function createWtmJiraSyncApi() {
   "use strict";
 
-  const SCRIPT_VERSION = "0.6.3";
+  const SCRIPT_VERSION = "0.6.5";
   const SCRIPT_FLAG = "__gmWtmJiraSync";
   const TZ = "Europe/Prague";
 
@@ -651,7 +651,8 @@
 
   const MSG = Object.freeze({ fromAgent: "gm-wjs-agent", toAgent: "gm-wjs-cmd", agentFlag: "__gmWjsAgent" });
 
-  function extractMonthResponse(url, bodyText) {
+  // An empty month has no workerMonthlyTimesheet in the response; the month is then only in the request.
+  function extractMonthResponse(url, bodyText, requestBody) {
     if (!/\/listWorkerTimesheetItemsByMonth(\?|$)/.test(String(url))) return null;
     let json;
     try {
@@ -660,7 +661,14 @@
       return null;
     }
     if (!json || !Array.isArray(json.timesheetItemList)) return null;
-    return { yearMonth: (json.workerMonthlyTimesheet && json.workerMonthlyTimesheet.yearMonth) || null, items: json.timesheetItemList };
+    let requested = null;
+    try {
+      requested = typeof requestBody === "string" ? JSON.parse(requestBody).yearMonth : null;
+    } catch (e) {
+      requested = null;
+    }
+    const yearMonth = (json.workerMonthlyTimesheet && json.workerMonthlyTimesheet.yearMonth) || (/^\d{6}$/.test(String(requested)) ? String(requested) : null);
+    return { yearMonth, items: json.timesheetItemList };
   }
 
   // Page-side changes (delete/create/update) do not reload the month list; the agent refetches it.
@@ -690,7 +698,7 @@
             headers: { Authorization: lastAuth, "Content-Type": "application/json", Accept: "application/json" },
             body: lastMonth.body,
           });
-          const m = extractMonthResponse(lastMonth.url, await res.text());
+          const m = extractMonthResponse(lastMonth.url, await res.text(), lastMonth.body);
           if (m) post("month", m);
         } catch (e) {
           /* the next page action retries */
@@ -722,7 +730,7 @@
         rememberMonth(url, body);
         this.addEventListener("load", () => {
           try {
-            const m = extractMonthResponse(url, this.responseText);
+            const m = extractMonthResponse(url, this.responseText, body);
             if (m) post("month", m);
             else if (isWtm(url) && isTimesheetMutation(url) && this.status >= 200 && this.status < 300) scheduleRefresh();
           } catch (e) {
@@ -749,7 +757,7 @@
           promise
             .then((res) => res.clone().text())
             .then((text) => {
-              const m = extractMonthResponse(url, text);
+              const m = extractMonthResponse(url, text, init && init.body);
               if (m) post("month", m);
             })
             .catch(() => {});
@@ -1397,8 +1405,8 @@
       else emptyBlocks.push({ date, block });
     }
     if (emptyBlocks.length) {
-      const button = [...document.querySelectorAll("button")].find((b) => /Vytvořit položku výkazu|Create timesheet item/.test(b.textContent));
-      let cursor = button && button.parentElement;
+      // A month without WTM items has only the header and the "no items" note: the days go between them.
+      let cursor = document.querySelector(".uu-specialistwtm-worker-monthly-detail-top");
       for (const { block } of emptyBlocks.sort((a, b) => b.date.localeCompare(a.date))) {
         if (cursor) {
           cursor.after(block);

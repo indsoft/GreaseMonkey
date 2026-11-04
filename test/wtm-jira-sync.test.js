@@ -2,8 +2,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const api = require("../wtm-jira-sync.user.js");
 
-test("SCRIPT_VERSION is 0.6.3", () => {
-  assert.equal(api.SCRIPT_VERSION, "0.6.3");
+test("SCRIPT_VERSION is 0.6.5", () => {
+  assert.equal(api.SCRIPT_VERSION, "0.6.5");
 });
 
 test("toPragueParts converts UTC to Prague (summer time)", () => {
@@ -367,6 +367,16 @@ test("checkWtmRules blocks invalid, old, out-of-month and overlapping entries", 
   assert.match(api.checkWtmRules({ date: "2026-11-02", from: "09:00", to: "09:30" }, [], "2026-10-30"), /měsíc/);
   assert.match(api.checkWtmRules({ date: "2026-10-09", from: "08:30", to: "09:30" }, day, "2026-10-10"), /Překryv s 08:00–09:00 CS-1/);
   assert.equal(api.checkWtmRules({ date: "2026-10-09", from: "08:30", to: "09:30" }, day, "2026-10-10", "a"), null);
+});
+
+test("extractMonthResponse takes an empty month from the request", () => {
+  const url = "https://x/uu-specialistwtm-maing01/a-b/listWorkerTimesheetItemsByMonth";
+  const empty = JSON.stringify({ workerMonthlyTimesheet: null, timesheetItemList: [], uuAppErrorMap: { "x/timesheetItemsNotFound": { type: "warning" } } });
+  assert.deepEqual(api.extractMonthResponse(url, empty, JSON.stringify({ yearMonth: "202611" })), { yearMonth: "202611", items: [] });
+  assert.deepEqual(api.extractMonthResponse(url, empty, "not json"), { yearMonth: null, items: [] });
+  assert.deepEqual(api.extractMonthResponse(url, empty), { yearMonth: null, items: [] });
+  const filled = JSON.stringify({ workerMonthlyTimesheet: { yearMonth: "202610" }, timesheetItemList: [] });
+  assert.equal(api.extractMonthResponse(url, filled, JSON.stringify({ yearMonth: "202611" })).yearMonth, "202610");
 });
 
 test("extractMonthResponse accepts only the month list command", () => {
