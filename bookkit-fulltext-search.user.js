@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         uuBookKit Fulltext Search
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.11.3
+// @version      1.11.4
 // @description  Adds a cached fulltext search for uuBookKit pages and sections using BookKit JSON commands.
 // @author       Lukáš Sedláček
 // @match        *://*/uu-bookkit-maing01/*
 // @grant        none
 // @run-at       document-idle
 // @require      https://cdn.jsdelivr.net/npm/minisearch@7.1.2/dist/umd/index.min.js
-// @updateURL    https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/bookkit-fulltext-search.user.js
-// @downloadURL  https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/bookkit-fulltext-search.user.js
+// @updateURL    https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/bookkit-fulltext-search.user.js
+// @downloadURL  https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/bookkit-fulltext-search.user.js
 // ==/UserScript==
 
 (function factory(rootFactory) {

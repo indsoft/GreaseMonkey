@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         Message Registry - Preview downloads (UUCloud1)
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.20
+// @version      1.21
 // @description  Shows message payloads and attachments in a dialog instead of downloading them.
 // @author       Lukáš Sedláček
 // @match        *://*/usy-idsmari-messageregistryg01/*
 // @grant        none
 // @run-at       document-start
-// @updateURL    https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.uucloud1.user.js
-// @downloadURL  https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.uucloud1.user.js
+// @updateURL    https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.uucloud1.user.js
+// @downloadURL  https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.uucloud1.user.js
 // ==/UserScript==
 
 (function () {

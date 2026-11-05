@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         IndSoft JIRA - ManiTime copy tag
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.6
+// @version      1.7
 // @description  Adds a fast ManiTime copy button on JIRA issue browse pages and overrides the embedded copy icons.
 // @author       Lukáš Sedláček
 // @match        *://jira.indsoft.local/browse/*
 // @grant        none
 // @run-at       document-start
-// @updateURL    https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/indsoft-jira-manictime.user.js
-// @downloadURL  https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/indsoft-jira-manictime.user.js
+// @updateURL    https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/indsoft-jira-manictime.user.js
+// @downloadURL  https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/indsoft-jira-manictime.user.js
 // ==/UserScript==
 
 (function () {

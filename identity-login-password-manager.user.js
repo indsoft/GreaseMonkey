@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         Plus4U - Identity login password manager bridge
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.6
+// @version      1.7
 // @description  Adds password-manager-friendly overlay fields to uuIdentity login forms and syncs them into the original access code inputs.
 // @author       Lukáš Sedláček
 // @match        *://*/uu-identitymanagement-maing01/*/login*
 // @grant        none
 // @run-at       document-idle
-// @updateURL    https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/identity-login-password-manager.user.js
-// @downloadURL  https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/identity-login-password-manager.user.js
+// @updateURL    https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/identity-login-password-manager.user.js
+// @downloadURL  https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/identity-login-password-manager.user.js
 // ==/UserScript==
 
 (function () {

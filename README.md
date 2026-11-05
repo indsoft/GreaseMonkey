@@ -43,11 +43,11 @@ If direct install is blocked by the browser, use the same URL in the addon page:
 <tbody>
 <tr>
 <td>Copy uuBml as PNG to clipboard</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/uubml-copy-as-png.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/uubml-copy-as-png.user.js">Install</a></td>
 </tr>
 <tr>
 <td>Cursor Usage Statistics</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/cursor-usage-statistics.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/cursor-usage-statistics.user.js">Install</a></td>
 </tr>
 <tr>
 <td><details>
@@ -64,23 +64,23 @@ Works in <code>uu-bookkit-maing01</code> books where the built-in search is too 
 <p><img src="docs/images/bookkit-fulltext-nav-indexing.png" alt="Book menu while a book is being indexed, with spinning icon and progress bar" width="360"><br><sub>Book menu while a book is being indexed</sub></p>
 <p><img src="docs/images/bookkit-fulltext-manage.png" alt="Book management with automatic indexing switch and per-book index actions" width="680"><br><sub>Book management</sub></p>
 </details></td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/bookkit-fulltext-search.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/bookkit-fulltext-search.user.js">Install</a></td>
 </tr>
 <tr>
 <td>Autoclose authentication page</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/close-auth-page.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/close-auth-page.user.js">Install</a></td>
 </tr>
 <tr>
 <td>Identity login password manager bridge</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/identity-login-password-manager.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/identity-login-password-manager.user.js">Install</a></td>
 </tr>
 <tr>
 <td>JSONATA JAVA Checker</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/jsonata-java-checker.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/jsonata-java-checker.user.js">Install</a></td>
 </tr>
 <tr>
 <td>IndSoft JIRA - ManiTime copy tag</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/indsoft-jira-manictime.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/indsoft-jira-manictime.user.js">Install</a></td>
 </tr>
 <tr>
 <td><details>
@@ -97,27 +97,27 @@ Adds an eye button <b>Náhled</b> to attachments on IndSoft, Unicorn (<code>jira
 <p><img src="docs/images/jira-attachment-preview-dashboard.png" alt="Preview tab with its own address ?viewAttachment=demo-dashboard.html showing an HTML dashboard rendered by its inline script" width="680"><br><sub>Preview tab with its own address – an HTML dashboard rendered by its script</sub></p>
 <p><img src="docs/images/jira-attachment-preview-json.png" alt="Compact JSON attachment shown formatted in the preview tab" width="320"><br><sub>JSON attachment, formatted</sub></p>
 </details></td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/jira-attachment-preview.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/jira-attachment-preview.user.js">Install</a></td>
 </tr>
 <tr>
 <td>Message Registry - Auto refresh</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/message-registry-autorefresh.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/message-registry-autorefresh.user.js">Install</a></td>
 </tr>
 <tr>
 <td>Message Registry - Preview downloads</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.user.js">Install</a></td>
 </tr>
 <tr>
 <td>Message Registry - Preview downloads (UUCloud1)</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.uucloud1.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.uucloud1.user.js">Install</a></td>
 </tr>
 <tr>
 <td>uuBookKit – FileManager</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/bookkit-file-manager.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/bookkit-file-manager.user.js">Install</a></td>
 </tr>
 <tr>
 <td>WTM ← Jira sync</td>
-<td valign="top"><a href="https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/wtm-jira-sync.user.js">Install</a></td>
+<td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/wtm-jira-sync.user.js">Install</a></td>
 </tr>
 </tbody>
 </table>

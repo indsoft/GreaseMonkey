@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IndSoft JIRA - Attachment preview
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.2.1
+// @version      1.2.2
 // @description  Adds a "Náhled" eye button to supported attachments on IndSoft, Unicorn and ČEPS Jira issues (HTML, text, images, PDF) and opens the file by name in a reloadable new tab that picks up new uploads; HTML runs in a sandboxed frame.
 // @author       Lukáš Sedláček
 // @match        *://jira.indsoft.local/*
@@ -9,8 +9,8 @@
 // @match        https://jira-dc.ceps.cz/*
 // @grant        none
 // @run-at       document-start
-// @updateURL    https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/jira-attachment-preview.user.js
-// @downloadURL  https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/jira-attachment-preview.user.js
+// @updateURL    https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/jira-attachment-preview.user.js
+// @downloadURL  https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/jira-attachment-preview.user.js
 // ==/UserScript==
 
 (function factory(rootFactory) {

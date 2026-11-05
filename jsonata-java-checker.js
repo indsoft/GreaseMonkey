@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JSONATA JAVA Checker
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      0.38
+// @version      0.39
 // @description  JSONata kontrola přes lokální Java backend
 // @author       Lukáš Sedláček
 // @match        https://try.jsonata.org/*
@@ -10,9 +10,9 @@
 // @grant        unsafeWindow
 // @connect      localhost
 // @connect      127.0.0.1
-// @require      https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/jsonata-java-checker.user.js
-// @updateURL    https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/jsonata-java-checker.js
-// @downloadURL  https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/jsonata-java-checker.js
+// @require      https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/jsonata-java-checker.user.js
+// @updateURL    https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/jsonata-java-checker.js
+// @downloadURL  https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/jsonata-java-checker.js
 // ==/UserScript==
 
 // Legacy update URL shim. The actual implementation lives in jsonata-java-checker.user.js.

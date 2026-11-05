@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         Cursor Usage Statistics
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.3.13
+// @version      1.3.14
 // @description  Adds on-demand spend from native Cursor Cost, usage-value charts, optional catalog fallback, and per-model statistics to the Cursor usage dashboard.
 // @author       Lukáš Sedláček
 // The dashboard is a SPA: matching only /dashboard/usage skips client-side navigation into it.
 // @match        https://cursor.com/dashboard*
 // @grant        unsafeWindow
 // @run-at       document-start
-// @updateURL    https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/cursor-usage-statistics.user.js
-// @downloadURL  https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/cursor-usage-statistics.user.js
+// @updateURL    https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/cursor-usage-statistics.user.js
+// @downloadURL  https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/cursor-usage-statistics.user.js
 // ==/UserScript==
 
 (function () {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         uuBookKit – FileManager
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.4.12
+// @version      1.4.13
 // @description  Attachment size, sort by size, and optional heuristic attachment-usage check for uuBookKit FileManager.
 // @author       Lukáš Vyleťal
 // @match        https://uuapp.plus4u.net/uu-bookkit-maing01/*
@@ -9,8 +9,8 @@
 // @grant        none
 // @run-at       document-start
 // @license      MIT
-// @updateURL    https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/bookkit-file-manager.user.js
-// @downloadURL  https://raw.githubusercontent.com/sedlacl/GreaseMonkey/refs/heads/main/bookkit-file-manager.user.js
+// @updateURL    https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/bookkit-file-manager.user.js
+// @downloadURL  https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/bookkit-file-manager.user.js
 // ==/UserScript==
 //
 // SPDX-License-Identifier: MIT

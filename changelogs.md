@@ -7,6 +7,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## jira-attachment-preview.user.js
 
+### 1.2.2 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
 ### 1.2.1 — 2026-11-03
 
 - Oprava: odkaz na místo ve stejném HTML (`href="#kapitola"`, např. obsah v liště dashboardu) v náhledu neodscrolloval, ale rám odnavigoval na prázdnou stránku. Rám s HTML přílohou nemá vlastní adresu a takový odkaz se vyhodnotil vůči adrese panelu náhledu. Skript do přílohy přidá malý pomocný skript, který na odkaz odscrolluje sám; odkazy, které si stránka obslouží sama, nechá být.
@@ -42,6 +46,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 - Limit 10 MB; větší příloha nebo chyba načtení ukáže v novém panelu vysvětlující větu.
 
 ## wtm-jira-sync.user.js
+
+### 0.6.6 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
 
 ### 0.6.5 — 2026-11-04
 
@@ -136,6 +144,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## bookkit-fulltext-search.user.js
 
+### 1.11.4 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
 ### 1.11.3 — 2026-10-16
 
 - Oprava: do textu a úryvků propadal kus značkování, např. `< style=\ What you will find here">`. Nadpis sekce (`header`) může být celý uu5string s escapovanými uvozovkami (`style=\"…\"`) a prohlížeč atribut ukončil na první z nich. Skript teď takové atributy nejdřív převede na čistý text. Už zaindexované stránky se opraví při příští aktualizaci, nejpozději při denním plném načtení knihy.
@@ -173,6 +185,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 - Po selhání se to v téže záložce znovu nezkouší. Smazaný index („Odstranit index“) se při další návštěvě knihy sestaví znovu; kdo to nechce, vypne přepínač.
 
 ## bookkit-file-manager.user.js
+
+### 1.4.13 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
 
 ### 1.4.12 — 2026-09-08
 
@@ -249,6 +265,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## message-registry-preview-downloads.user.js (uuCloudg02)
 
+### 1.40 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
 ### 1.39 — 2026-08-06
 
 - **Ikona message source (`<>`) chyběla u zpráv bez interního payloadu** (např. Rejected s jediným tlačítkem „Stáhnout externí obsah“). Kotva se hledala výhradně na `internal-payload-button`, takže ikona nikdy nevznikla, i když `message/get` funguje.
@@ -304,6 +324,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## message-registry-preview-downloads.uucloud1.user.js (UUCloud1)
 
+### 1.21 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
 ### 1.20 — 2026-08-06
 
 - Promise-safe fetch interceptor (GM/Firefox) a duck-typing `isRequestLike` (bez `instanceof Request`).
@@ -313,9 +337,101 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## cursor-usage-statistics.user.js
 
+### 1.3.14 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
 ### 1.3.13 — 2026-08-06
 
 - **Panel se nenasadil po klientském přechodu na Usage.** `@match` pokrýval jen `/dashboard/usage*`, takže při vstupu přes `cursor.com/dashboard` (SPA) se skript vůbec nespustil a bylo nutné stránku ručně refreshovat. `@match` je nově `https://cursor.com/dashboard*`.
 - Detekce změny routy hlídáním `location.href` (+ `popstate` / `hashchange`) místo patchování `history.pushState` — vyhýbá se Xray problémům ve Firefoxu.
 - Mount panelu i načítání dat je nově omezeno na `/dashboard/usage`, aby se panel neobjevoval a usage API nestahovalo na ostatních routách dashboardu.
 - Při odchodu z Usage se panel (včetně nápovědy) odstraní; při návratu se překreslí z cache, bez zbytečného reloadu.
+
+---
+
+## message-registry-preview-downloads.js (zavaděč)
+
+### 1.19 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## message-registry-autorefresh.user.js
+
+### 1.5 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## message-registry-autorefresh.js (zavaděč)
+
+### 1.4 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## jsonata-java-checker.user.js
+
+### 0.38 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## jsonata-java-checker.js (zavaděč)
+
+### 0.39 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## uubml-copy-as-png.user.js
+
+### 1.2 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## uubml-copy-as-png.js (zavaděč)
+
+### 1.3 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## close-auth-page.user.js
+
+### 1.1 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## close-auth-page.js (zavaděč)
+
+### 1.2 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## identity-login-password-manager.user.js
+
+### 1.7 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
+
+---
+
+## indsoft-jira-manictime.user.js
+
+### 1.7 — 2026-11-05
+
+- Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
