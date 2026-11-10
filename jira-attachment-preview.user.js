@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IndSoft JIRA - Attachment preview
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      1.2.2
+// @version      1.2.3
 // @description  Adds a "Náhled" eye button to supported attachments on IndSoft, Unicorn and ČEPS Jira issues (HTML, text, images, PDF) and opens the file by name in a reloadable new tab that picks up new uploads; HTML runs in a sandboxed frame.
 // @author       Lukáš Sedláček
 // @match        *://jira.indsoft.local/*
@@ -28,7 +28,7 @@
   "use strict";
 
   const SCRIPT_FLAG = "__gmJiraAttachmentPreview";
-  const SCRIPT_VERSION = "1.2.1";
+  const SCRIPT_VERSION = "1.2.3";
   const STYLE_ID = "gm-jira-attachment-preview-style";
   const BUTTON_CLASS = "gm-jap-btn";
   const OVERLAY_CLASS = "gm-jap-overlay";
@@ -228,6 +228,15 @@
   /** Same-origin download path built from the id and file name, never taken from the URL. */
   function attachmentContentPath(attachmentId, filename) {
     return `/secure/attachment/${encodeURIComponent(attachmentId)}/${encodeURIComponent(filename)}`;
+  }
+
+  /**
+   * Absolute URL of a Jira path on the page's origin. Greasemonkey 4 runs user scripts in a
+   * content-script sandbox whose fetch has no base URL, so a relative path throws
+   * "is not a valid URL" there; Tampermonkey and Violentmonkey accept both.
+   */
+  function sameOriginUrl(path, pageHref) {
+    return new URL(path, pageHref).href;
   }
 
   /** Jira puts "mime:filename:url" into data-downloadurl on each attachment item. */
@@ -635,7 +644,7 @@
 
   /** Newest attachment of the issue with this file name, or null when there is none. */
   async function fetchLatestAttachment(issueKey, filename) {
-    const response = await fetch(`/rest/api/2/issue/${encodeURIComponent(issueKey)}?fields=attachment`, {
+    const response = await fetch(sameOriginUrl(`/rest/api/2/issue/${encodeURIComponent(issueKey)}?fields=attachment`, location.href), {
       credentials: "same-origin",
       headers: { Accept: "application/json" },
     });
@@ -656,7 +665,7 @@
       return;
     }
 
-    const response = await fetch(attachmentContentPath(meta.id, meta.filename), { credentials: "same-origin" });
+    const response = await fetch(sameOriginUrl(attachmentContentPath(meta.id, meta.filename), location.href), { credentials: "same-origin" });
     if (!response.ok) {
       response.body?.cancel().catch(() => {});
       showMessage(doc, TEXT_LOAD_FAILED);
@@ -779,6 +788,7 @@
     latestAttachmentByName,
     issuePageUrl,
     attachmentContentPath,
+    sameOriginUrl,
     withInFrameLinks,
     IN_FRAME_LINKS_JS,
     PREVIEW_LIMIT_BYTES,
