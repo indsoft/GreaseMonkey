@@ -2,8 +2,14 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const api = require("../jira-attachment-preview.user.js");
 
-test("SCRIPT_VERSION is 1.2.1", () => {
-  assert.equal(api.SCRIPT_VERSION, "1.2.1");
+test("SCRIPT_VERSION is 1.2.3", () => {
+  assert.equal(api.SCRIPT_VERSION, "1.2.3");
+});
+
+test("sameOriginUrl: Jira path becomes absolute on the page origin (Greasemonkey 4 fetch needs it)", () => {
+  const page = "https://jira.indsoft.local/browse/SPESKA-2457?viewAttachment=a.html";
+  assert.equal(api.sameOriginUrl("/rest/api/2/issue/SPESKA-2457?fields=attachment", page), "https://jira.indsoft.local/rest/api/2/issue/SPESKA-2457?fields=attachment");
+  assert.equal(api.sameOriginUrl(api.attachmentContentPath("12", "a b.html"), page), "https://jira.indsoft.local/secure/attachment/12/a%20b.html");
 });
 
 test("classifyAttachment: known extension decides, case-insensitive, last suffix", () => {

@@ -7,6 +7,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## jira-attachment-preview.user.js
 
+### 1.2.3 — 2026-11-10
+
+- Oprava pro Greasemonkey 4 ve Firefoxu: náhled hlásil „Přílohu se nepodařilo načíst“ a v konzoli `TypeError: /rest/api/2/issue/… is not a valid URL`. Greasemonkey spouští skript v izolovaném prostoru doplňku, kde `fetch` neumí relativní adresu. Skript teď dotaz na Jiru i stažení přílohy volá s plnou adresou (origin stránky + cesta).
+
 ### 1.2.2 — 2026-11-05
 
 - Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.
