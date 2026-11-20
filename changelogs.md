@@ -51,6 +51,21 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## wtm-jira-sync.user.js
 
+### 0.7.2 — 2026-11-20
+
+- Oprava: WTM posuzuje stáří podle data začátku v UTC, takže 00:00–01:00 (v létě do 02:00) našeho času bere jako předchozí den. Náhrada na nejstarší den, který WTM ještě přijme, proto začíná až v 01:00 (v létě 02:00) a hlídání „Starší než 7 dní“ počítá stejně. Dřív WTM takové náhrady odmítlo hláškou „DatetimeFrom is more than 7.0 days to past.“
+
+### 0.7.1 — 2026-11-20
+
+- Když na víkendu není místo, jdou náhrady na pracovní dny od půlnoci. Použijí se jen dny téhož měsíce, které WTM ještě přijme (bez dneška), a volné místo se hledá kolem položek ve WTM i kolem worklogů, které se teprve zapíšou na svůj den, aby se později nepřekrývaly. Když se položka nikam nevejde, zůstane zablokovaná.
+
+### 0.7.0 — 2026-11-20
+
+- Zapomenutý zápis: worklogy z dnů starších než 7 dní, které WTM na jejich den už nepřijme, nabídne skript zapsat náhradou na víkend. Jdou v původním pořadí za sebou od soboty 0:00 (co se nevejde, pokračuje v neděli) kolem položek, které na víkendu už jsou. Použije se nejbližší víkend téhož měsíce, který WTM ještě přijme; když se nikam nevejdou, zůstanou zablokované.
+- Do popisu se připíše původní den a čas, např. „CS-1 Vývoj (za 10. 11. 2026 08:00–09:00)“. Podle toho skript položku spáruje s worklogem na jeho původní den a u náhradní položky ukáže „✓ CS-1 za 10. 11. 08:00–09:00“.
+- Zápis náhradou vždy potvrzuješ: tlačítko „Zapsat náhradou“, „Zapsat vše“ u dne i za celý měsíc nejdřív ukážou seznam přesunů (původní den a čas → víkendový den a čas).
+- Konstanta `SCRIPT_VERSION` znovu odpovídá `@version` (v 0.6.6 zůstala na 0.6.5).
+
 ### 0.6.6 — 2026-11-05
 
 - Repozitář se přesunul do [indsoft/GreaseMonkey](https://github.com/indsoft/GreaseMonkey). `@updateURL` a `@downloadURL` (u zavaděče i `@require`) ukazují na novou adresu; Tampermonkey po této aktualizaci stahuje další verze odtud. `@namespace` zůstává, aby se skript aktualizoval na místě a nenainstaloval podruhé.

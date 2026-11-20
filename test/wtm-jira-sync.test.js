@@ -2,8 +2,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const api = require("../wtm-jira-sync.user.js");
 
-test("SCRIPT_VERSION is 0.6.5", () => {
-  assert.equal(api.SCRIPT_VERSION, "0.6.5");
+test("SCRIPT_VERSION is 0.7.2", () => {
+  assert.equal(api.SCRIPT_VERSION, "0.7.2");
 });
 
 test("toPragueParts converts UTC to Prague (summer time)", () => {
@@ -56,7 +56,7 @@ test("normalizeWtmItems maps raw WTM items to Prague times", () => {
   ]);
   assert.deepEqual(items[0], {
     id: "a1", date: "2026-10-09", from: "07:45", to: "08:15", key: "CS-1", comment: "Analýza, Vývoj",
-    description: "CS-1 Analýza, Vývoj", subject: "https://example.test/artifactInfo?id=1", subjectName: "W_SLA", state: "active", highRate: true, absence: false,
+    description: "CS-1 Analýza, Vývoj", subject: "https://example.test/artifactInfo?id=1", subjectName: "W_SLA", state: "active", highRate: true, absence: false, replacementFor: null,
   });
   assert.equal(items[1].highRate, false);
   assert.equal(items[1].key, "IDS-2");
@@ -243,6 +243,77 @@ test("planDayActions blocks confirmed diff items and unknown artifacts, honours 
   const chosen = plan({ [wUnknown.worklogId]: "picked" });
   assert.equal(chosen[1].subject, "picked");
   assert.equal(chosen[1].blocked, null);
+});
+
+test("a weekend replacement keeps its real day in the description and is matched on that day", () => {
+  const w = W("CS-1", "2026-11-10", "08:00", "09:00", "Vývoj");
+  const dtoIn = api.buildReplacementDtoIn(w, "s", { date: "2026-11-14", from: "00:00", to: "01:00" });
+  assert.equal(dtoIn.description, "CS-1 Vývoj (za 10. 11. 2026 08:00–09:00)");
+  assert.equal(dtoIn.category, "CS-1");
+  assert.equal(dtoIn.datetimeFrom, "2026-11-13T23:00:00.000Z");
+
+  const [item] = api.normalizeWtmItems([{ id: "r1", datetimeFrom: dtoIn.datetimeFrom, datetimeTo: dtoIn.datetimeTo, category: "CS-1", description: dtoIn.description, state: "active" }]);
+  assert.deepEqual(item.replacementFor, { date: "2026-11-10", from: "08:00", to: "09:00" });
+  assert.equal(item.description, "CS-1 Vývoj");
+  assert.equal(item.date, "2026-11-14");
+
+  const res = api.matchMonth([w], [item]);
+  assert.deepEqual(res["2026-11-10"].ok.map((p) => [p.item.id, p.item.placed]), [["r1", { date: "2026-11-14", from: "00:00", to: "01:00" }]]);
+  assert.equal(res["2026-11-14"], undefined);
+});
+
+test("planReplacements packs late worklogs from 00:00 onto writable weekend days around existing items", () => {
+  const today = "2026-11-20";
+  const busy = [I("x", "CS-9", "2026-11-14", "00:00", "01:00")];
+  const plan = api.planReplacements(
+    [W("CS-2", "2026-11-11", "08:00", "20:00"), W("CS-1", "2026-11-10", "08:00", "17:00"), W("CS-3", "2026-11-12", "08:00", "12:00")],
+    busy,
+    today,
+  );
+  assert.deepEqual(plan["CS-1-08:00"], { date: "2026-11-14", from: "01:00", to: "10:00" });
+  assert.deepEqual(plan["CS-2-08:00"], { date: "2026-11-14", from: "10:00", to: "22:00" });
+  assert.deepEqual(plan["CS-3-08:00"], { date: "2026-11-15", from: "00:00", to: "04:00" });
+  // A full weekend moves the rest to working days from midnight, around items and worklogs still to be written there.
+  const fullWeekend = [I("s", "CS-9", "2026-11-14", "00:00", "23:59"), I("n", "CS-9", "2026-11-15", "00:00", "23:59")];
+  const onWeekday = api.planReplacements(
+    [W("CS-5", "2026-11-10", "08:00", "12:00"), W("CS-6", "2026-11-11", "08:00", "17:00")],
+    [...fullWeekend, W("CS-7", "2026-11-13", "06:00", "15:00")],
+    today,
+  );
+  // 13. 11. is the oldest day WTM accepts on 20. 11., and only from 01:00 Prague time (00:00 UTC).
+  assert.deepEqual(onWeekday["CS-5-08:00"], { date: "2026-11-13", from: "01:00", to: "05:00" });
+  // 9 h no longer fit on 13. 11. after 15:00 (it would end at 24:00), so they go to Monday.
+  assert.deepEqual(onWeekday["CS-6-08:00"], { date: "2026-11-16", from: "00:00", to: "09:00" });
+  // On 9. 10. WTM accepts only October days, so a September worklog has nowhere to go.
+  assert.equal(api.planReplacements([W("CS-4", "2026-09-24", "08:00", "09:00")], [], "2026-10-09")["CS-4-08:00"], null);
+});
+
+test("checkWtmRules judges the age by the UTC date of the start, like WTM", () => {
+  assert.match(api.checkWtmRules({ date: "2026-11-13", from: "00:30", to: "01:00" }, [], "2026-11-20"), /7 dní/);
+  assert.equal(api.checkWtmRules({ date: "2026-11-13", from: "01:00", to: "01:30" }, [], "2026-11-20"), null);
+  // Summer time: Prague is UTC+2, so the day starts for WTM at 02:00.
+  assert.match(api.checkWtmRules({ date: "2026-10-03", from: "01:45", to: "02:00" }, [], "2026-10-10"), /7 dní/);
+  assert.equal(api.checkWtmRules({ date: "2026-10-03", from: "02:00", to: "02:30" }, [], "2026-10-10"), null);
+});
+
+test("planDayActions turns a late worklog into a weekend replacement or blocks it when nothing fits", () => {
+  const w = W("CS-1", "2026-11-10", "08:00", "09:00");
+  const result = { ok: [], diff: [], missing: [w], extra: [] };
+  const base = { result, dayItems: [], mapping: { W_SLA: "sla" }, choices: {}, today: "2026-11-20" };
+  const target = { date: "2026-11-14", from: "00:00", to: "01:00" };
+  const [replace] = api.planDayActions({ ...base, replacements: { [w.worklogId]: target } });
+  assert.equal(replace.type, "replace");
+  assert.deepEqual(replace.target, target);
+  assert.equal(replace.blocked, null);
+  const [full] = api.planDayActions({ ...base, replacements: { [w.worklogId]: null } });
+  assert.equal(full.type, "create");
+  assert.match(full.blocked, /už není místo/);
+  const [old] = api.planDayActions(base);
+  assert.match(old.blocked, /Starší než 7 dní/);
+
+  const placed = { ...I("r1", "CS-1", "2026-11-10", "08:00", "09:00", "Jiný"), placed: target };
+  const [update] = api.planDayActions({ ...base, result: { ok: [], diff: [{ worklog: w, item: placed }], missing: [], extra: [] }, replacements: {} });
+  assert.match(update.blocked, /uprav ji ve WTM ručně/);
 });
 
 test("planDayActions blocks writes for blocked and expired labels", () => {

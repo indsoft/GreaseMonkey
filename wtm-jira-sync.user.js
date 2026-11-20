@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WTM ← Jira sync
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      0.6.6
+// @version      0.7.2
 // @description  Na stránce WTM „Výkazy za měsíc“ spáruje položky s worklogy v Jiře (jira.indsoft.local) a dorovná WTM podle Jiry.
 // @author       Lukáš Sedláček
 // @match        https://uuapp.plus4u.net/uu-specialistwtm-maing01/*
@@ -27,7 +27,7 @@
 })(function createWtmJiraSyncApi() {
   "use strict";
 
-  const SCRIPT_VERSION = "0.6.5";
+  const SCRIPT_VERSION = "0.7.2";
   const SCRIPT_FLAG = "__gmWtmJiraSync";
   const TZ = "Europe/Prague";
 
@@ -93,6 +93,25 @@
     return c ? `${key} ${c}` : key;
   }
 
+  // A late item written on a weekend day keeps its real day and time: "CS-1 Vývoj (za 10. 11. 2026 08:00–09:00)".
+  const REPLACEMENT_RE = /\s*\(za (\d{1,2})\. (\d{1,2})\. (\d{4}) (\d{1,2}:\d{2})[–-](\d{1,2}:\d{2})\)$/;
+
+  function replacementNote(worklog) {
+    const [y, m, d] = worklog.date.split("-").map(Number);
+    return `(za ${d}. ${m}. ${y} ${worklog.from}–${worklog.to})`;
+  }
+
+  function parseReplacementNote(description) {
+    const m = REPLACEMENT_RE.exec(String(description || ""));
+    if (!m) return null;
+    return {
+      base: description.slice(0, m.index).trim(),
+      date: `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`,
+      from: m[4].padStart(5, "0"),
+      to: m[5].padStart(5, "0"),
+    };
+  }
+
   // Absences (vacation, sick leave…) are reported automatically on the worker's own Co-worker role; Jira never has them.
   function isAbsenceItem(raw) {
     return /_coworker-role$/.test(String(raw.subjectCode || "")) || String(raw.category || "") === "VACATION";
@@ -102,7 +121,8 @@
     return (list || []).map((i) => {
       const from = toPragueParts(i.datetimeFrom);
       const to = toPragueParts(i.datetimeTo);
-      const description = String(i.description || "").trim();
+      const replacement = parseReplacementNote(String(i.description || "").trim());
+      const description = replacement ? replacement.base : String(i.description || "").trim();
       const key = String(i.category || description.split(/\s+/)[0] || "").trim();
       let comment = "";
       if (description.startsWith(`${key} `)) comment = description.slice(key.length + 1).trim();
@@ -120,6 +140,7 @@
         state: i.state || "",
         highRate: Boolean(i.highRate),
         absence: isAbsenceItem(i),
+        replacementFor: replacement ? { date: replacement.date, from: replacement.from, to: replacement.to } : null,
       };
     });
   }
@@ -197,11 +218,13 @@
     return { ok, diff, missing: W, extra: I, absence: items.filter((i) => i.absence) };
   }
 
+  // Weekend replacements are matched on the day they stand for; `placed` keeps where they really are in WTM.
   function matchMonth(worklogs, items, mapping) {
-    const dates = new Set([...worklogs.map((w) => w.date), ...items.map((i) => i.date)]);
+    const moved = items.map((i) => (i.replacementFor ? { ...i, ...i.replacementFor, placed: { date: i.date, from: i.from, to: i.to } } : i));
+    const dates = new Set([...worklogs.map((w) => w.date), ...moved.map((i) => i.date)]);
     const out = {};
     for (const date of [...dates].sort()) {
-      out[date] = matchDay(worklogs.filter((w) => w.date === date), items.filter((i) => i.date === date), mapping);
+      out[date] = matchDay(worklogs.filter((w) => w.date === date), moved.filter((i) => i.date === date), mapping);
     }
     return out;
   }
@@ -603,16 +626,86 @@
     };
   }
 
+  function buildReplacementDtoIn(worklog, subject, target) {
+    const dtoIn = buildCreateDtoIn({ ...worklog, ...target }, subject);
+    return { ...dtoIn, description: `${dtoIn.description} ${replacementNote(worklog)}` };
+  }
+
   function buildUpdateDtoIn(item, worklog, subject) {
     return { id: item.id, ...buildCreateDtoIn(worklog, subject || item.subject), highRate: item.highRate === true };
+  }
+
+  function addDays(date, days) {
+    return new Date(Date.parse(`${date}T00:00:00Z`) + days * 86400000).toISOString().slice(0, 10);
+  }
+
+  // WTM compares the UTC date of the start with today minus 7 days, so 00:00–01:00 (summer 02:00) Prague time
+  // still counts as the previous day.
+  function isTooOld(entry, today) {
+    return pragueToUtcIso(entry.date, entry.from).slice(0, 10) < addDays(today, -7);
+  }
+
+  // First minute of a Prague day whose start WTM still accepts.
+  function firstWritableMinute(date, today) {
+    const oldest = addDays(today, -7);
+    if (date > oldest) return 0;
+    return date === oldest ? pragueOffsetMinutes(Date.parse(`${date}T00:00:00Z`)) : null;
+  }
+
+  function isWeekend(date) {
+    const day = new Date(`${date}T00:00:00Z`).getUTCDay();
+    return day === 0 || day === 6;
+  }
+
+  function hmOf(min) {
+    return `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
+  }
+
+  const WEEKDAYS = Object.freeze(["ne", "po", "út", "st", "čt", "pá", "so"]);
+
+  function formatSlot(slot) {
+    return `${WEEKDAYS[new Date(`${slot.date}T00:00:00Z`).getUTCDay()]} ${formatCzDate(slot.date)} ${slot.from}–${slot.to}`;
+  }
+
+  // WTM refuses items older than 7 days. They go back to back from 00:00 onto days of the same month that WTM still
+  // accepts (before today, so nothing ends in the future): weekend days first, then working days from midnight.
+  // `items` are the slots already taken – WTM items and worklogs still to be written on their own day; null when nothing fits.
+  function planReplacements(worklogs, items, today) {
+    const out = {};
+    const busy = {};
+    const taken = (date) => busy[date] || (busy[date] = items.filter((i) => i.date === date).map((i) => [minutesOf(i.from), minutesOf(i.to)]));
+    const oldest = addDays(today, -7);
+    for (const w of [...worklogs].sort((a, b) => (a.date + a.from).localeCompare(b.date + b.from))) {
+      const len = durationMinutes(w.from, w.to);
+      const days = [];
+      for (let date = w.date > oldest ? w.date : oldest; date < today; date = addDays(date, 1)) {
+        if (date.slice(0, 7) === w.date.slice(0, 7)) days.push(date);
+      }
+      let target = null;
+      for (const date of [...days.filter(isWeekend), ...days.filter((d) => !isWeekend(d))]) {
+        if (target) break;
+        const slots = taken(date).sort((a, b) => a[0] - b[0]);
+        let start = firstWritableMinute(date, today);
+        for (const [a, b] of slots) {
+          if (start + len <= a) break;
+          start = Math.max(start, b);
+        }
+        // 24:00 is not a valid time of day; the last slot ends at 23:59 at the latest.
+        if (start + len < 24 * 60) {
+          target = { date, from: hmOf(start), to: hmOf(start + len) };
+          slots.push([start, start + len]);
+        }
+      }
+      out[w.worklogId] = target;
+    }
+    return out;
   }
 
   function checkWtmRules(entry, dayItems, today, ignoreItemId) {
     const a = minutesOf(entry.from);
     const b = minutesOf(entry.to);
     if (b <= a) return "Neplatný časový rozsah";
-    const ageDays = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${entry.date}T00:00:00Z`)) / 86400000);
-    if (ageDays > 7) return "Starší než 7 dní – WTM to odmítne";
+    if (isTooOld(entry, today)) return "Starší než 7 dní – WTM to odmítne";
     const ym = entry.date.slice(0, 7);
     const current = today.slice(0, 7);
     if (ym !== current && ym !== previousYearMonthDash(current)) return "Mimo aktuální nebo předchozí měsíc";
@@ -621,20 +714,29 @@
     return null;
   }
 
-  function planDayActions({ result, dayItems, mapping, choices, today }) {
+  // `replacements` (worklogId → replacement slot or null) comes from planReplacements for worklogs WTM refuses on their own day.
+  function planDayActions({ result, dayItems, mapping, choices, today, replacements }) {
     if (!result) return [];
     const actions = [];
     for (const w of result.missing) {
       const resolved = resolveSubject(w.labels, mapping);
       const subject = choices[w.worklogId] || resolved.subject;
       const ruleLabel = choices[w.worklogId] ? mappingLabelForUrl(mapping, subject) : resolved.label;
+      const late = Boolean(replacements) && Object.prototype.hasOwnProperty.call(replacements, w.worklogId);
+      const target = late ? replacements[w.worklogId] : null;
       const blocked = !subject
         ? `Neznámý artefakt${resolved.label ? ` pro ${resolved.label}` : ""} – vyber ho`
-        : labelRuleBlock(ruleLabel, mapping[ruleLabel], w.date) || checkWtmRules(w, dayItems, today);
-      actions.push({ type: "create", worklog: w, subject, label: resolved.label, blocked });
+        : labelRuleBlock(ruleLabel, mapping[ruleLabel], w.date) ||
+          (!late ? checkWtmRules(w, dayItems, today) : target ? null : "Starší než 7 dní a ve dnech, které WTM přijme, už není místo");
+      if (target) actions.push({ type: "replace", worklog: w, subject, label: resolved.label, target, blocked });
+      else actions.push({ type: "create", worklog: w, subject, label: resolved.label, blocked });
     }
     for (const p of result.diff) {
-      const blocked = p.item.state !== "active" ? "Položka je potvrzená" : checkWtmRules(p.worklog, dayItems, today, p.item.id);
+      const blocked = p.item.state !== "active"
+        ? "Položka je potvrzená"
+        : p.item.placed
+          ? "Náhrada na víkendu – uprav ji ve WTM ručně"
+          : checkWtmRules(p.worklog, dayItems, today, p.item.id);
       actions.push({ type: "update", worklog: p.worklog, item: p.item, subject: null, blocked });
     }
     return actions.sort((a, b) => a.worklog.from.localeCompare(b.worklog.from));
@@ -1241,6 +1343,7 @@
     awaitingMonth: false,
     choices: {},
     messages: {},
+    replacements: {},
   };
 
   function rowActionsFor(date) {
@@ -1250,6 +1353,7 @@
       mapping: state.settings.mapping,
       choices: state.choices,
       today: todayPrague(),
+      replacements: state.replacements,
     });
     const stale = staleReason(state.jira);
     return stale ? actions.map((a) => ({ ...a, blocked: a.blocked || stale })) : actions;
@@ -1279,7 +1383,7 @@
       foot.push(h("span", { class: "gm-wjs-subject", title: (entry && entry.note) || null }, label));
       if (entry && entry.artifact) foot.push(h("span", { class: "gm-wjs-text2" }, entry.artifact));
     }
-    foot.push(h("button", { class: "gm-wjs-btn gm-wjs-btn-m gm-wjs-btn-primary", disabled: state.busy || Boolean(action.blocked), title: action.blocked || "", onclick: () => onAction(action) }, "Zapsat do WTM"));
+    foot.push(h("button", { class: "gm-wjs-btn gm-wjs-btn-m gm-wjs-btn-primary", disabled: state.busy || Boolean(action.blocked), title: action.blocked || "", onclick: () => onAction(action) }, action.target ? "Zapsat náhradou" : "Zapsat do WTM"));
     const msg = state.messages[rowId] || action.blocked;
     return h("div", { class: "gm-wjs-row", "data-from": w.from }, [
       h("div", { class: "gm-wjs-row-head" }, [
@@ -1288,6 +1392,7 @@
         h("span", { class: "gm-wjs-badge gm-wjs-missing" }, "chybí ve WTM"),
       ]),
       h("div", { class: "gm-wjs-row-desc" }, [jiraLink(w.key), ` ${w.comment || ""}`]),
+      action.target ? h("span", { class: "gm-wjs-note" }, `Tento den už WTM nepřijme – zapíše se náhradou na ${formatSlot(action.target)}`) : null,
       h("div", { class: "gm-wjs-row-foot" }, foot),
       msg ? h("span", { class: "gm-wjs-msg" }, msg) : null,
     ]);
@@ -1315,6 +1420,14 @@
 
   function absenceText(item) {
     return item.key === "VACATION" ? "dovolená" : "nepřítomnost";
+  }
+
+  function decoratePlacedCard(card, x) {
+    const rf = x.item.replacementFor;
+    const when = `za ${formatCzDate(rf.date)} ${rf.from}–${rf.to}`;
+    if (x.kind === "ok") card.timeEl.after(h("span", { class: "gm-wjs-badge gm-wjs-ok", title: "Náhrada za starší den – sedí s Jirou" }, ["✓ ", jiraLink(x.key), ` ${when}`]));
+    else if (x.kind === "diff") card.timeEl.after(h("span", { class: "gm-wjs-badge gm-wjs-diff", title: "Náhrada za starší den – liší se od Jiry, uprav ji ve WTM ručně" }, ["≠ ", jiraLink(x.key), ` ${when}`]));
+    else card.timeEl.after(h("span", { class: "gm-wjs-badge gm-wjs-extra", title: "Náhrada za starší den – v Jiře takový worklog není" }, `náhrada ${when}, není v Jiře`));
   }
 
   function takeCard(cards, item) {
@@ -1356,11 +1469,20 @@
     ensureStyle();
     const sections = findDaySections(document.body);
     const known = new Set(sections.map((s) => s.date));
+    const placed = Object.values(state.results).flatMap((r) => [
+      ...r.ok.map((p) => ({ item: p.item, key: p.worklog.key, kind: "ok" })),
+      ...r.diff.map((p) => ({ item: p.item, key: p.worklog.key, kind: "diff" })),
+      ...r.extra.map((i) => ({ item: i, key: null, kind: "extra" })),
+    ]).filter((x) => x.item.placed);
     for (const { date, headerEl, sectionEl } of sections) {
+      const cards = findItemCards(sectionEl);
+      for (const x of placed.filter((p) => p.item.placed.date === date)) {
+        const card = takeCard(cards, x.item.placed);
+        if (card) decoratePlacedCard(card, x);
+      }
       const res = state.results[date];
       if (!res) continue;
       const actions = rowActionsFor(date);
-      const cards = findItemCards(sectionEl);
       for (const p of res.ok) {
         const card = takeCard(cards, p.item);
         if (card) decorateCard(card, p, "ok");
@@ -1378,7 +1500,7 @@
         if (card) decorateCard(card, i, "absence");
       }
       const allCards = findItemCards(sectionEl);
-      for (const action of actions.filter((a) => a.type === "create")) {
+      for (const action of actions.filter((a) => a.type !== "update")) {
         const row = renderVirtualRow(action);
         const before = allCards.find((c) => c.from < action.worklog.from);
         if (before) before.el.before(row);
@@ -1392,7 +1514,7 @@
     const notFound = Object.keys(state.results).filter((d) => !known.has(d) && hasItems(d)).sort();
     state.missingDays = notFound.join(",");
     for (const date of Object.keys(state.results).filter((d) => !known.has(d) && !hasItems(d) && state.results[d].missing.length)) {
-      const actions = rowActionsFor(date).filter((a) => a.type === "create");
+      const actions = rowActionsFor(date).filter((a) => a.type !== "update");
       const runnable = actions.filter((a) => !a.blocked);
       const block = h("div", { class: "gm-wjs-vday" }, [h("div", { class: "gm-wjs-vday-title" }, [
         h("span", {}, `${formatCzDate(date)} – v Jiře, ve WTM nic`),
@@ -1431,8 +1553,13 @@
         result.failed.push({ action, error: action.blocked });
         continue;
       }
-      const cmd = action.type === "create" ? "createTimesheetItem" : "updateTimesheetItem";
-      const dtoIn = action.type === "create" ? buildCreateDtoIn(action.worklog, action.subject) : buildUpdateDtoIn(action.item, action.worklog, null);
+      const cmd = action.type === "update" ? "updateTimesheetItem" : "createTimesheetItem";
+      const dtoIn =
+        action.type === "update"
+          ? buildUpdateDtoIn(action.item, action.worklog, null)
+          : action.type === "replace"
+            ? buildReplacementDtoIn(action.worklog, action.subject, action.target)
+            : buildCreateDtoIn(action.worklog, action.subject);
       const res = await agent.call(cmd, dtoIn);
       if (res.ok) result.done++;
       else {
@@ -1483,12 +1610,26 @@
     if (!res.ok) location.reload();
   }
 
+  function replacementLines(actions) {
+    return actions
+      .filter((a) => a.type === "replace")
+      .map((a) => `${formatCzDate(a.worklog.date)} ${a.worklog.from}–${a.worklog.to} ${a.worklog.key} → ${formatSlot(a.target)}`);
+  }
+
+  const REPLACEMENT_QUESTION = "Tyto položky jsou starší než 7 dní a WTM je na jejich den nepřijme. Zapíšou se náhradou na víkend (když tam není místo, tak od půlnoci pracovního dne) a do popisu dostanou původní den a čas:";
+
+  function confirmReplacements(actions) {
+    const lines = replacementLines(actions);
+    return !lines.length || window.confirm(`${REPLACEMENT_QUESTION}\n\n${lines.join("\n")}\n\nZapsat?`);
+  }
+
   function onAction(action) {
-    runBatch([action]);
+    if (confirmReplacements([action])) runBatch([action]);
   }
 
   function onDayAll(date) {
-    runBatch(rowActionsFor(date).filter((a) => !a.blocked));
+    const actions = rowActionsFor(date).filter((a) => !a.blocked);
+    if (confirmReplacements(actions)) runBatch(actions);
   }
 
   function monthActions() {
@@ -1500,9 +1641,11 @@
     if (!actions.length) return;
     const days = [...new Set(actions.map((a) => a.worklog.date))].map(formatCzDate);
     const creates = actions.filter((a) => a.type === "create").length;
-    const updates = actions.length - creates;
-    const parts = [creates ? `nové: ${creates}` : "", updates ? `úpravy: ${updates}` : ""].filter(Boolean).join(", ");
-    if (!window.confirm(`Zapsat do WTM všechny položky měsíce podle Jiry (${parts})?\n\nDny: ${days.join(", ")}`)) return;
+    const updates = actions.filter((a) => a.type === "update").length;
+    const lines = replacementLines(actions);
+    const parts = [creates ? `nové: ${creates}` : "", updates ? `úpravy: ${updates}` : "", lines.length ? `náhradou: ${lines.length}` : ""].filter(Boolean).join(", ");
+    const late = lines.length ? `\n\n${REPLACEMENT_QUESTION}\n${lines.join("\n")}` : "";
+    if (!window.confirm(`Zapsat do WTM všechny položky měsíce podle Jiry (${parts})?\n\nDny: ${days.join(", ")}${late}`)) return;
     runBatch(actions);
   }
 
@@ -1519,6 +1662,10 @@
 
   function recompute() {
     state.results = matchMonth(state.worklogs, state.items, state.settings && state.settings.mapping);
+    const today = todayPrague();
+    const missing = Object.values(state.results).flatMap((r) => r.missing);
+    const late = missing.filter((w) => isTooOld(w, today));
+    state.replacements = planReplacements(late, [...state.items, ...missing.filter((w) => !isTooOld(w, today))], today);
     render();
   }
 
@@ -1907,6 +2054,8 @@
     todayPrague,
     buildWtmDescription,
     isAbsenceItem,
+    replacementNote,
+    parseReplacementNote,
     normalizeWtmItems,
     normalizeJiraWorklogs,
     fetchJiraMonth,
@@ -1915,6 +2064,8 @@
     parseDayHeaderText,
     parseTimeRangeText,
     matchDay,
+    planReplacements,
+    buildReplacementDtoIn,
     matchMonth,
     DEFAULT_MAPPING,
     normalizeSubjectUrl,
