@@ -42,7 +42,12 @@ If direct install is blocked by the browser, use the same URL in the addon page:
 </thead>
 <tbody>
 <tr>
-<td>Copy uuBml as PNG to clipboard</td>
+<td><details>
+<summary><b>Copy uuBml as PNG to clipboard</b> – copy a uuBml diagram as an image</summary>
+<br>
+Adds a <b>📷 Copy as PNG</b> button to the header of every uuBml diagram on <code>uuapp.plus4u.net</code> pages – BookKit, ManagementKit and other uuApps. One click renders the diagram in its full size, including the page styles, into a PNG and puts it into the clipboard, ready to paste into Teams, Outlook, Word or a Jira comment. A green notice confirms the copy, a red one reports an error.
+<p><img src="docs/images/uubml-copy-as-png.png" alt="uuBml mind map diagram in BookKit with the Copy as PNG button next to the diagram's Fit menu" width="680"><br><sub>Copy as PNG button in the diagram header</sub></p>
+</details></td>
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/uubml-copy-as-png.user.js">Install</a></td>
 </tr>
 <tr>
@@ -67,11 +72,19 @@ Works in <code>uu-bookkit-maing01</code> books where the built-in search is too 
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/bookkit-fulltext-search.user.js">Install</a></td>
 </tr>
 <tr>
-<td>Autoclose authentication page</td>
+<td><details>
+<summary><b>Autoclose authentication page</b> – close the leftover uuIdentity tab after login</summary>
+<br>
+After signing in to Plus4U from a CLI, a desktop app or an MCP server, uuIdentity leaves a tab with the authorization code and the text <i>Uzavřete prosím tuto stránku</i> (“Please close this page”). The script waits for this text and closes the tab by itself. It runs only on the <code>showAuthorizationCode</code> page and recognizes the Czech text. There is nothing to see – the tab just disappears.
+</details></td>
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/close-auth-page.user.js">Install</a></td>
 </tr>
 <tr>
-<td>Identity login password manager bridge</td>
+<td><details>
+<summary><b>Identity login password manager bridge</b> – let password managers fill the uuIdentity login</summary>
+<br>
+The uuIdentity login form uses two fields named <code>accessCode1</code> / <code>accessCode2</code>, which password managers (Chrome, Bitwarden, 1Password, KeePass…) do not recognize as a user name and password. The script lays two ordinary <b>Jméno</b> / <b>Heslo</b> fields (<code>autocomplete="username"</code> / <code>current-password</code>) over the original ones and copies everything you type or the password manager fills into the original form, so the login itself works as before. The eye button still shows or hides both values. Works on every uuIdentity login page (<code>…/uu-identitymanagement-maing01/…/login</code>), including customer instances.
+</details></td>
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/identity-login-password-manager.user.js">Install</a></td>
 </tr>
 <tr>
@@ -100,23 +113,70 @@ Adds an eye button <b>Náhled</b> to attachments on IndSoft, Unicorn (<code>jira
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/jira-attachment-preview.user.js">Install</a></td>
 </tr>
 <tr>
-<td>Message Registry - Auto refresh</td>
+<td><details>
+<summary><b>Message Registry - Auto refresh</b> – reload the message list periodically</summary>
+<br>
+Adds an <b>autorefresh</b> checkbox with an interval in seconds (1–3600, default 10) next to the toolbar of the message list. While it is on, the script clicks the native <b>Obnovit data</b> / <b>Reload Data</b> button at that interval; the line under the control shows the time to the next reload. The setting is remembered for each page address. Works in <code>uu-energygateway-messageregistryg01</code> and in the AFLEX data flows (<code>usy-edcaflex-maing01</code>).
+<p><img src="docs/images/message-registry-autorefresh.png" alt="Message list toolbar with the autorefresh checkbox and a 5 second interval" width="520"><br><sub>Autorefresh control in the list toolbar</sub></p>
+</details></td>
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/message-registry-autorefresh.user.js">Install</a></td>
 </tr>
 <tr>
-<td>Message Registry - Preview downloads</td>
+<td><details>
+<summary><b>Message Registry - Preview downloads</b> – show payloads and attachments instead of downloading them</summary>
+<br>
+For the standard <code>uu-energygateway-messageregistryg01</code> UI (uuCloud g02) and the AFLEX data flows. In the message detail it adds preview buttons 🔍 next to the download buttons and opens the content in a dialog instead of a downloaded file.
+<ul>
+<li><b>Payloads and attachments</b> – internal and external payload and every attachment in the audit log; the native download buttons keep working.</li>
+<li><b>Message source</b> (<code>&lt;&gt;</code>) – the whole message as returned by <code>message/get</code>, also for messages without an internal payload.</li>
+<li><b>Dialog tools</b> – JSON and XML syntax highlighting, a format / raw content switch (an HTTP status line is kept apart from the body), copy and download.</li>
+<li><b>Audit log</b> – a summary of warning / error / critical entries in the section header (click jumps to the first one), coloured severities and row hover.</li>
+<li><b>Links</b> – an icon opens a linked message in a new window; in a modal the script uses the message you clicked, not the one in the address.</li>
+</ul>
+<p><img src="docs/images/message-registry-preview-source.png" alt="Message Source dialog with formatted JSON of the message, copy and wrap buttons" width="680"><br><sub>Message source in the preview dialog (anonymized)</sub></p>
+<p><img src="docs/images/message-registry-audit-log.png" alt="Audit log header with warning, error and critical counters and preview icons for attachments" width="680"><br><sub>Audit log with severity summary and attachment preview</sub></p>
+</details></td>
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.user.js">Install</a></td>
 </tr>
 <tr>
-<td>Message Registry - Preview downloads (UUCloud1)</td>
+<td><details>
+<summary><b>Message Registry - Preview downloads (UUCloud1)</b> – the same previews for IDS Apps</summary>
+<br>
+Variant of <b>Message Registry - Preview downloads</b> for <code>usy-idsmari-messageregistryg01</code> (IDS Apps, uuCloud g01). It has the same preview dialogs and formatting tools, plus fixes for the older UU5 rendering, the placement of attachment buttons and authenticated preview requests. It looks the same as the screenshots above. Install only the variant that matches your application.
+</details></td>
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/message-registry-preview-downloads.uucloud1.user.js">Install</a></td>
 </tr>
 <tr>
-<td>uuBookKit – FileManager</td>
+<td><details>
+<summary><b>uuBookKit – FileManager</b> – file sizes, sort by size, find unused attachments</summary>
+<br>
+Extends the File Manager of a BookKit book (<b>Kniha → Správce souborů</b>).
+<ul>
+<li><b>Sizes</b> – every tile shows the file size in its corner.</li>
+<li><b>Sort by size</b> – the native sort menu gets <b>Velikost – vzestupně / sestupně</b> (size ascending / descending), so the largest files are easy to find.</li>
+<li><b>Ověřit použití příloh</b> (check attachment usage) – reads all pages of the book and shows on each tile how many times the file is referenced (<b>N×</b>). Files without a reference (<b>0×</b>) turn red. The check only reads the book.</li>
+<li><b>Označit kandidáty</b> (select candidates) – after a check without errors, adds the unused files to the native selection for bulk actions, e.g. deleting.</li>
+</ul>
+The check is a heuristic: it may miss non-standard references (another book, an external link). When a page fails to load, no file is marked as unused and the selection stays disabled. Based on FileManager 1.4.0 by Lukáš Vyleťal.
+<p><img src="docs/images/bookkit-file-manager-sort.png" alt="BookKit File Manager with size badges on tiles and the sort menu with Velikost options" width="680"><br><sub>Size on the tiles and sorting by size</sub></p>
+<p><img src="docs/images/bookkit-file-manager-usage.png" alt="File Manager after the usage check: unused files are red with a 0× badge, used files show 1×" width="680"><br><sub>After the usage check – unused files are red (0×)</sub></p>
+</details></td>
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/bookkit-file-manager.user.js">Install</a></td>
 </tr>
 <tr>
-<td>WTM ← Jira sync</td>
+<td><details>
+<summary><b>WTM ← Jira sync</b> – fill WTM timesheets from your Jira worklogs</summary>
+<br>
+On the WTM page <b>Výkazy za měsíc</b> (monthly timesheet) the script pairs WTM items with your worklogs in IndSoft Jira (<code>jira.indsoft.local</code>). Jira is the source of truth: the script never writes to Jira and never deletes anything in WTM. You need to be signed in to Jira in the same browser.
+<ul>
+<li><b>Bar in the timesheet header</b> – counts of matching (✓), different (≠), missing and extra items, the label mapping, <b>Nastavení</b> (settings), <b>Obnovit</b> (reload) and <b>Zapsat vše</b> for the whole month.</li>
+<li><b>Day and item marks</b> – green = matches Jira, orange = differs (<b>Upravit podle Jiry</b> fixes it), a virtual row = missing in WTM (<b>Zapsat do WTM</b>, <b>Zapsat vše</b> for the day), red = extra in WTM (delete it by hand). Holidays and other absences filled in by WTM are marked grey.</li>
+<li><b>Label → artifact</b> – the WTM artifact comes from the ticket's <code>W_</code> label. The table in the settings can be imported from <code>mappings.toml</code> (<code>schema_version = 1</code>; <code>label</code>, <code>subject_url</code>, optional <code>valid_to</code>, <code>blocked</code>, <code>note</code>, <code>project</code>, <code>artifact</code>) or straight from the ManagementKit document <i>SP53 Standardy vykazování</i>. An expired or blocked label stops the write with a reason.</li>
+<li><b>Forgotten worklogs</b> – days older than 7 days, which WTM no longer accepts, can be written as a replacement on a weekend (or free time on working days) of the same month; the original day and time go into the description and you confirm the list first.</li>
+</ul>
+<p><img src="docs/images/wtm-jira-sync-month.png" alt="WTM monthly timesheet with the WTM ← Jira bar, days marked sedí and items marked with their Jira ticket key" width="680"><br><sub>Monthly timesheet – every day and item matches Jira</sub></p>
+<p><img src="docs/images/wtm-jira-sync-settings.png" alt="Settings dialog with the label to artifact table imported from the SP53 document" width="520"><br><sub>Settings – label → artifact mapping imported from the SP53 document</sub></p>
+</details></td>
 <td valign="top"><a href="https://raw.githubusercontent.com/indsoft/GreaseMonkey/refs/heads/main/wtm-jira-sync.user.js">Install</a></td>
 </tr>
 </tbody>
@@ -126,18 +186,8 @@ Rows with ▸ expand to a description and screenshots.
 
 ## Notes
 
-Use `Message Registry - Preview downloads` for the standard `uu-energygateway-messageregistryg01` UI.
-
-Use `Message Registry - Preview downloads (UUCloud1)` for the `usy-idsmari-messageregistryg01` / IDS Apps variant. This version keeps the same preview dialogs and formatting tools, but adds compatibility fixes for older UU5 rendering, attachment button placement, and authenticated preview requests.
-
-Use `Identity login password manager bridge` on uuIdentity login pages where password managers do not recognize the original `accessCode1` / `accessCode2` fields. The script decorates the native fields and inserts two compatible proxy password inputs that mirror back into the original form.
-
 Use `Cursor Usage Statistics` on the Cursor usage dashboard to see spend KPIs (today, last 7 days, calendar month, daily average), a stacked chart of the top five models by spend plus others, and a per-model cost table. Toggle the chart between 7 or 30 days and tokens or spend; click a model in the table to filter it in the chart. Tooltips show daily and per-segment details. Included usage remains visible in token totals but counts as $0 spend, matching Cursor's own table.
 
-
-Use `uuBookKit – FileManager` on the BookKit attachments page to show file sizes on tiles, sort by size, and optionally run a heuristic unused-attachment check across book pages. After a clean scan, `Select candidates` adds heuristically identified unused attachments to the native bulk-action selection. The usage scan may miss non-standard references; partial page failures do not mark attachments as unused.
-
-WTM ← Jira sync (`wtm-jira-sync.user.js`): na stránce WTM „Výkazy za měsíc“ spáruje položky s tvými worklogy v Jiře (`jira.indsoft.local`). Zelená = sedí, oranžová = liší se (tlačítko „Upravit podle Jiry“), virtuální řádek = chybí ve WTM („Zapsat do WTM“, „Zapsat vše“ za den, „Zapsat vše“ v liště za celý měsíc), červená = ve WTM navíc (mažeš ručně). Jira je zdroj pravdy, skript do Jiry nezapisuje a ve WTM nic nemaže. Artefakt WTM se bere z W_ labelu ticketu podle tabulky v Nastavení; tabulku lze naimportovat ze souboru `mappings.toml` (TOML, `schema_version = 1`, pole `label`, `subject_url`, volitelně `valid_to`, `blocked`, `note`, `project`, `artifact`). Label po `valid_to` nebo s `blocked = true` zápis zablokuje. Druhou možností je import přímo z dokumentu „SP53 Standardy vykazování“ v ManagementKitu (tlačítko „Importovat z dokumentu SP53“). Potřebuje být přihlášený do Jiry ve stejném prohlížeči.
 
 ## Changelog
 
