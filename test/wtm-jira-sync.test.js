@@ -2,8 +2,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const api = require("../wtm-jira-sync.user.js");
 
-test("SCRIPT_VERSION is 0.7.2", () => {
-  assert.equal(api.SCRIPT_VERSION, "0.7.2");
+test("SCRIPT_VERSION is 0.7.3", () => {
+  assert.equal(api.SCRIPT_VERSION, "0.7.3");
 });
 
 test("toPragueParts converts UTC to Prague (summer time)", () => {
@@ -70,6 +70,22 @@ test("isAbsenceItem recognises absences of any worker by the Co-worker role", ()
   assert.equal(api.isAbsenceItem({ category: "VACATION", subjectCode: "" }), true);
   assert.equal(api.isAbsenceItem({ category: "CS-1", subjectCode: "psd.sp53.rto-ps01", subjectName: "W_SLA" }), false);
   assert.equal(api.isAbsenceItem({ category: "", subjectCode: "" }), false);
+});
+
+test("a worklog ending at midnight ends at 24:00 and round-trips through WTM", () => {
+  const [w] = api.normalizeJiraWorklogs({
+    issues: [{ key: "CS-10010", fields: { labels: ["W_MIG_HW_ENE2"], summary: "" } }],
+    worklogsByKey: { "CS-10010": [{ id: 7, author: { name: "me" }, started: "2026-11-24T23:15:00.000+0100", timeSpentSeconds: 2700, comment: "Revize" }] },
+    meName: "me",
+    range: { from: "2026-11-01", to: "2026-11-30" },
+  });
+  assert.deepEqual([w.date, w.from, w.to, api.durationMinutes(w.from, w.to)], ["2026-11-24", "23:15", "24:00", 45]);
+  assert.equal(api.checkWtmRules(w, [], "2026-11-27"), null);
+  const dtoIn = api.buildCreateDtoIn(w, "s");
+  assert.equal(dtoIn.datetimeTo, "2026-11-24T23:00:00.000Z");
+  const [item] = api.normalizeWtmItems([{ id: "i1", ...dtoIn }]);
+  assert.deepEqual([item.date, item.from, item.to], ["2026-11-24", "23:15", "24:00"]);
+  assert.equal(api.matchDay([w], [item]).ok.length, 1);
 });
 
 test("normalizeJiraWorklogs keeps only my worklogs inside the month", () => {

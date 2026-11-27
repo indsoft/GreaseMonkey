@@ -51,6 +51,10 @@ Pravidlo: při každém bumpnutí `@version` doplň záznam zde (viz `.cursor/ru
 
 ## wtm-jira-sync.user.js
 
+### 0.7.3 — 2026-11-27
+
+- Oprava: worklog, který končí o půlnoci (např. 23:15–00:00), měl zápornou délku. U řádku bylo „Neplatný časový rozsah“, nešel zapsat a součet dne v Jiře vyšel záporný. Konec o půlnoci a později se teď počítá do téhož dne jako 24:00, 24:30 …, do WTM jde jako začátek dalšího dne a položka z WTM se načte zpátky stejně.
+
 ### 0.7.2 — 2026-11-20
 
 - Oprava: WTM posuzuje stáří podle data začátku v UTC, takže 00:00–01:00 (v létě do 02:00) našeho času bere jako předchozí den. Náhrada na nejstarší den, který WTM ještě přijme, proto začíná až v 01:00 (v létě 02:00) a hlídání „Starší než 7 dní“ počítá stejně. Dřív WTM takové náhrady odmítlo hláškou „DatetimeFrom is more than 7.0 days to past.“

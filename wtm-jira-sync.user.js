@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WTM ← Jira sync
 // @namespace    https://github.com/sedlacl/GreaseMonkey
-// @version      0.7.2
+// @version      0.7.3
 // @description  Na stránce WTM „Výkazy za měsíc“ spáruje položky s worklogy v Jiře (jira.indsoft.local) a dorovná WTM podle Jiry.
 // @author       Lukáš Sedláček
 // @match        https://uuapp.plus4u.net/uu-specialistwtm-maing01/*
@@ -27,7 +27,7 @@
 })(function createWtmJiraSyncApi() {
   "use strict";
 
-  const SCRIPT_VERSION = "0.7.2";
+  const SCRIPT_VERSION = "0.7.3";
   const SCRIPT_FLAG = "__gmWtmJiraSync";
   const TZ = "Europe/Prague";
 
@@ -45,12 +45,21 @@
     return Math.round((Date.parse(`${p.date}T${p.hm}:00Z`) - minuteMs) / 60000);
   }
 
+  // Times past midnight stay on the start day as 24:00 and later (see endOfDay).
   function pragueToUtcIso(date, hm) {
+    const min = minutesOf(hm);
+    if (min >= 24 * 60) return pragueToUtcIso(addDays(date, 1), hmOf(min - 24 * 60));
     const guess = Date.parse(`${date}T${hm}:00Z`);
     let utc = guess - pragueOffsetMinutes(guess) * 60000;
     const check = pragueOffsetMinutes(utc);
     utc = guess - check * 60000;
     return new Date(utc).toISOString();
+  }
+
+  // End time on the start day's clock: a range ending at or after midnight ends at 24:00, 24:30 …, so it stays positive.
+  function endOfDay(from, to) {
+    const days = Math.round((Date.parse(`${to.date}T00:00:00Z`) - Date.parse(`${from.date}T00:00:00Z`)) / 86400000);
+    return days > 0 ? hmOf(minutesOf(to.hm) + days * 24 * 60) : to.hm;
   }
 
   function minutesOf(hm) {
@@ -131,7 +140,7 @@
         id: i.id,
         date: from.date,
         from: from.hm,
-        to: to.hm,
+        to: endOfDay(from, to),
         key,
         comment,
         description,
@@ -166,7 +175,7 @@
           labels,
           date: from.date,
           from: from.hm,
-          to: to.hm,
+          to: endOfDay(from, to),
           comment: String(wl.comment || "").trim(),
           worklogId: String(wl.id),
         });
@@ -1431,7 +1440,8 @@
   }
 
   function takeCard(cards, item) {
-    const idx = cards.findIndex((c) => c.from === item.from && c.to === item.to);
+    // The page shows an end at midnight as 00:00, the script as 24:00.
+    const idx = cards.findIndex((c) => c.from === item.from && minutesOf(c.to) % (24 * 60) === minutesOf(item.to) % (24 * 60));
     return idx < 0 ? null : cards.splice(idx, 1)[0];
   }
 
